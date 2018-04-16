@@ -1,18 +1,46 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import db from './mockDB';
+
+const toArray = obj => Object.keys(obj).map(key => ({...obj[key], id: key}));
+const sortByTs = todos => toArray(todos).sort((a, b) => b.ts - a.ts);
 
 class App extends Component {
+  state = {
+    todos: {},
+    todoList: [],
+    loaded: false
+  };
+
+  actions = {
+    syncTodos: () => {
+      db.syncTodos(todos => {
+        this.setState({
+          todos,
+          loaded: true,
+          todoList: Object.keys(todos)
+            .map(key => ({
+              ...todos[key],
+              id: key
+            }))
+            .sort((a, b) => b.ts - a.ts)
+        });
+      });
+    }
+  };
+
+  componentDidMount() {
+    this.actions.syncTodos();
+  }
+
   render() {
+    console.log(this.state);
+    if(!this.state.loaded) {
+      return <div>Loading...</div>;
+    }
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+      <div>
+        <h1>Todos</h1>
       </div>
     );
   }
