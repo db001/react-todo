@@ -14,6 +14,11 @@ class App extends Component {
   };
 
   actions = {
+    toggle: id => {
+      db.updateTodo(id, {
+        done: !this.state.todos[id].done
+      });
+    },
     changeInputTitle: title => {
       this.setState({
         newTitle: title
@@ -32,12 +37,7 @@ class App extends Component {
         this.setState({
           todos,
           loaded: true,
-          todoList: Object.keys(todos)
-            .map(key => ({
-              ...todos[key],
-              id: key
-            }))
-            .sort((a, b) => b.ts - a.ts)
+          todoList: sortByTs(todos)
         });
       });
     }
@@ -56,34 +56,47 @@ class App extends Component {
       <div>
         <h1>Todos</h1>
         <Form {...this.state} {...this.actions} />
-        <Todos {...this.state} />
+        <Todos {...this.state} {...this.actions} />
       </div>
     );
   }
 }
 
-const Form = props => (
+const Form = ({ newTitle, changeInputTitle, submit }) => (
     <form
       onSubmit={e => {
         e.preventDefault();
-        props.submit();
+        submit();
       }}
     >
       <input
         type="text"
-        value={props.newTitle}
+        value={newTitle}
         onChange={e => {
-          props.changeInputTitle(e.target.value);
+          changeInputTitle(e.target.value);
         }}
       />
-      <button disabled={!props.newTitle}>Submit</button>
+      <button disabled={!newTitle}>Submit</button>
     </form>
   );
 
 const Todos = props => {
+  const { todoList, toggle } = props;
   return (
     <div>
-      {props.todoList.map(todo => <div key={todo.id}>{todo.title}</div>)}
+      {todoList.map(({ id, title, done }) => (
+        <div key={id}>
+          <input
+            type="checkbox"
+            checked={done}
+            onChange={() => {
+              toggle(id);
+            }}
+          />
+          <span style={{ textDecoration: done && 'line-through' }}>
+            {title}
+          </span>
+        </div>))}
     </div>
   );
 };
