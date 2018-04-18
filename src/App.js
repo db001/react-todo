@@ -14,6 +14,9 @@ class App extends Component {
   };
 
   actions = {
+    deleteTodo: (id) => {
+      db.deleteTodo(id);
+    },
     toggle: id => {
       db.updateTodo(id, {
         done: !this.state.todos[id].done
@@ -48,7 +51,7 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.state);
+    // console.log(this.state);
     if(!this.state.loaded) {
       return <div>Loading...</div>;
     }
@@ -81,7 +84,7 @@ const Form = ({ newTitle, changeInputTitle, submit }) => (
   );
 
 const Todos = props => {
-  const { todoList, toggle } = props;
+  const { todoList, toggle, deleteTodo } = props;
   return (
     <div>
       {todoList.map(({ id, title, done }) => (
@@ -96,6 +99,14 @@ const Todos = props => {
           <span style={{ textDecoration: done && 'line-through' }}>
             {title}
           </span>
+          <button
+            onClick={() => {
+              deleteTodo(id)
+            }}
+            style={{ color: 'red' }}
+          >
+            Delete
+          </button>
         </div>))}
     </div>
   );
